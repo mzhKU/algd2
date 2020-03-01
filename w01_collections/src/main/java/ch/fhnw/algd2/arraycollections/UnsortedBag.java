@@ -17,8 +17,15 @@ public class UnsortedBag<E> extends AbstractArrayCollection<E> {
 
 	@Override
 	public boolean add(E e) {
+
+		// Objects.requireNonNull(e)
+        // checkRemainingCapacity();
+        // addElemen(e)
+		// data[size++] = e;
+
 		int lastIndex = size()-1;
 
+		// e.equals(null): NPE wird geworfen wenn e null ist, aber im IF statement.
 		// 'null' cannot be added.
 		if(e == null) {
 			throw new NullPointerException("Adding null.");
@@ -66,6 +73,9 @@ public class UnsortedBag<E> extends AbstractArrayCollection<E> {
 			if (this.data[i].getClass() != o.getClass()) {
 				return false;
 			}
+
+			// '==': Referenzvergleich, dh. sind es die gleichen Objekte?
+			// 'equals': Ist der Inhalt der Objekte gleich?
 			if (this.data[i].equals(o)) {
 				return true;
 			}
@@ -75,7 +85,10 @@ public class UnsortedBag<E> extends AbstractArrayCollection<E> {
 
 	@Override
 	public Object[] toArray() {
+		// O(n)
 		return Arrays.copyOf(data, size());
+
+		// return data would auch funktionieren mit O(1).
 	}
 
 	@Override

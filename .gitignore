@@ -1,9 +1,10 @@
 .gitignore
 archive
-w01_collections/out
-w01_collections/build
-w01_collections/.idea
-w01_collections/.gradle
-w01_collections/.settings
+*.class
+*/out
+*/build
+*/.idea
+*/.gradle
+*/.settings
 
 *.jar
