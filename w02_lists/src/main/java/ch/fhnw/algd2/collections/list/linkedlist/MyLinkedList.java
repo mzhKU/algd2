@@ -1,105 +1,174 @@
 package ch.fhnw.algd2.collections.list.linkedlist;
 
 import java.util.Arrays;
-import java.util.Objects;
 
 import ch.fhnw.algd2.collections.list.MyAbstractList;
 
 public class MyLinkedList<E> extends MyAbstractList<E> {
 	private int size = 0;
 	private Node<E> first;
+	private Node<E> last;
 
 	@Override
 	public boolean add(E e) {
-
-		// Add new node to start of list.
-		Node newNode = new Node(e);
-		newNode.next = this.first;
-		this.first   = newNode;
-		size++;
-
-		// Node newNode = new Node(e);
-		// if (this.first != null) {
-		// 	Node currentNode = this.first;
-		// 	while (currentNode.next != null) {
-		// 		currentNode = currentNode.next;
-		// 	}
-		// 	currentNode.next = newNode;
-		// } else {
-		// 	this.first = newNode;
-		// }
-		// size++;
-
-		return true;
-
-        /*
 		// Add new node to end of list.
-	    if (this.first == null) {
-			this.first = new Node(e);
-			size++;
-			return true;
+		Node<E> newNode = new Node<E>(e);
+
+		if (first != null) {
+			last.next  = newNode;
+			last       = newNode;
+		} else {
+			first = newNode;
+			last  = newNode;
 		}
-        Node currentNode = this.first;
-        while (currentNode.next != null) {
-            currentNode = currentNode.next;
-        }
-
-        // Not within loop because size stores size from previous adding.
 		size++;
-
-        // Insert at end of list.
-		Node newNode = new Node(e);
-		currentNode.next = newNode;
-
-
-		// Insert at start of list.
-        Node newNode = new Node(e);
-        Node oldFirst = this.first;
-        this.first = newNode;
-        this.first.next = oldFirst;
-*/
+		return true;
 	}
 
 	@Override
 	public boolean contains(Object o) {
-		if (this.size == 0) {
-			return false;
-		}
-		if (this.first.elem == o) {
-			return true;
-		}
+	    // Sequential search.
 		Node currentNode = this.first;
 		while (currentNode != null) {
-			if (currentNode.elem == o) {
+			if (o != null && o.equals(currentNode.elem)) {
 				return true;
+			} else {
+				currentNode = currentNode.next;
 			}
-			currentNode = currentNode.next;
 		}
 		return false;
 	}
 
+
 	@Override
 	public boolean remove(Object o) {
-		// TODO implement this operation (part C)
-		throw new UnsupportedOperationException();
+		// Invariant: previousNode.next == currentNode
+		Node currentNode  = this.first;
+		Node previousNode = null;
+
+		while (currentNode != null) {
+			if (currentNode.elem.equals(o)) {
+				// It is not the first element.
+				if (previousNode != null) {
+					previousNode.next = currentNode.next;
+				} else {
+					// It is the first element.
+					first = currentNode.next;
+				}
+				// It is the last element.
+				if (currentNode.next == null) {
+					last = previousNode;
+				}
+				size--;
+				return true;
+			} else {
+				// Advance the search.
+				previousNode = currentNode;
+				currentNode  = currentNode.next;
+			}
+		}
+		return false;
 	}
 
+
+	/**
+	 * Returns the element at the specified position in this list.
+	 *
+	 * @param index index of the element to return
+	 * @return the element at the specified position in this list
+	 * @throws IndexOutOfBoundsException if the index is out of range
+	 *         ({@code index < 0 || index >= size()})
+	 */
 	@Override
 	public E get(int index) {
-		// TODO implement this operation (part D)
-		throw new UnsupportedOperationException();
+		if (index < 0 || index >= size()) {
+			throw new IndexOutOfBoundsException("Invalid index.");
+		}
+		int i = 0;
+		Node n = this.first;
+		while (i < index) {
+			n = n.next;
+			i++;
+		}
+		return (E) n.elem;
 	}
 
+	/**
+	 * Inserts the specified element at the specified position in this list
+	 * (optional operation).  Shifts the element currently at that position
+	 * (if any) and any subsequent elements to the right (adds one to their
+	 * indices).
+	 *
+	 * @param index index at which the specified element is to be inserted
+	 * @param element element to be inserted
+	 * @throws UnsupportedOperationException if the {@code add} operation
+	 *         is not supported by this list
+	 * @throws ClassCastException if the class of the specified element
+	 *         prevents it from being added to this list
+	 * @throws NullPointerException if the specified element is null and
+	 *         this list does not permit null elements
+	 * @throws IllegalArgumentException if some property of the specified
+	 *         element prevents it from being added to this list
+	 * @throws IndexOutOfBoundsException if the index is out of range
+	 *         ({@code index < 0 || index > size()})
+	 */
 	@Override
 	public void add(int index, E element) {
-		// TODO implement this operation (part D)
-		throw new UnsupportedOperationException();
+		// Insert Element 'element' at position 'index'.
+		if (index < 0) {
+			throw new IndexOutOfBoundsException("Illegal index.");
+		}
+		if (index > size) {
+			throw new IndexOutOfBoundsException("Illegal index.");
+		}
+
+		if (index == size) {
+			add(element);
+		} else if (index == 0) {
+			first = new Node(element, first);
+			size++;
+		} else {
+
+			Node n = first;
+
+			for (int i = 0; i < index; i++) {
+				n = n.next;
+			}
+
+			n.next = new Node(element);
+
+			size++;
+		}
 	}
 
 	@Override
 	public E remove(int index) {
-		// TODO implement this operation (part D)
-		throw new UnsupportedOperationException();
+		if (index < 0 || index > size-1) {
+			throw new IndexOutOfBoundsException("Negative index.");
+		}
+		if (index >= size) {
+			throw new IllegalArgumentException("Illegal index.");
+		}
+		E removedElement;
+		if (index > 0) {
+			Node<E> n = first;
+			for (int i = 0; i < index-1; i++) {
+				n = n.next;
+			}
+			removedElement = n.next.elem;
+			n.next = n.next.next;
+			if (n.next == null) {
+				last = n;
+			}
+		} else {
+			removedElement = first.elem;
+			first = first.next;
+			if (first == null) {
+				last = null;
+			}
+		}
+		size--;
+		return removedElement;
 	}
 
 	@Override
@@ -112,6 +181,11 @@ public class MyLinkedList<E> extends MyAbstractList<E> {
 			current = current.next;
 		}
 		return array;
+	}
+
+	@Override
+	public boolean isEmpty() {
+		return size==0;
 	}
 
 	@Override

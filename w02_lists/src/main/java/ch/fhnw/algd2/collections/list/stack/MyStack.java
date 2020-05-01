@@ -1,10 +1,14 @@
 package ch.fhnw.algd2.collections.list.stack;
 
+import ch.fhnw.algd2.collections.list.linkedlist.MyLinkedList;
+
 public class MyStack<E> implements IStack<E> {
+
+	private MyLinkedList stack;
+
 	@Override
 	public E pop() {
-		// TODO implement this operation
-		throw new UnsupportedOperationException();
+	    return (E) this.stack.remove(0);
 	}
 
 	@Override

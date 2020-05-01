@@ -1,0 +1,62 @@
+apply plugin: 'java'
+apply plugin: 'idea'
+apply plugin: 'eclipse'
+
+sourceCompatibility = 11
+targetCompatibility = 11
+compileJava.options.encoding = 'UTF-8'
+compileTestJava.options.encoding = 'UTF-8'
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    testCompile 'junit:junit:4.12'
+}
+
+task test4Search (type: Test) {
+	group = 'verification'
+	description = 'Runs tests for tasks 4.3, search'
+	
+	include('ch/fhnw/algd2/binsearchtrees/kapitel4/Test_4_3_Search.class')
+}
+
+task test4Insert (type: Test) {
+	group = 'verification'
+	description = 'Runs tests for task 4.8, insert'
+	
+	include('ch/fhnw/algd2/binsearchtrees/kapitel4/Test_4_8_Insert.class')
+}
+
+task run3_3 (type: JavaExec) {
+	group = 'verification'
+	description = 'Runs task 3.3'
+	
+	main = 'ch.fhnw.algd2.binsearchtrees.kapitel3.Aufgabe3_3'
+	classpath = sourceSets.main.runtimeClasspath
+}
+
+task run4_3 (type: JavaExec) {
+	group = 'verification'
+	description = 'Runs task 4.3'
+	
+	main = 'ch.fhnw.algd2.binsearchtrees.kapitel4.Aufgabe4_3'
+	classpath = sourceSets.main.runtimeClasspath
+}
+
+task run4_8 (type: JavaExec) {
+	group = 'verification'
+	description = 'Runs task 4.8'
+	
+	main = 'ch.fhnw.algd2.binsearchtrees.kapitel4.Aufgabe4_8'
+	classpath = sourceSets.main.runtimeClasspath
+}
+
+task run4_13 (type: JavaExec) {
+	group = 'verification'
+	description = 'Runs task 4.13'
+	
+	main = 'ch.fhnw.algd2.binsearchtrees.kapitel4.Aufgabe4_13'
+	classpath = sourceSets.main.runtimeClasspath
+}

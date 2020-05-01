@@ -1,10 +1,12 @@
 package ch.fhnw.algd2.arraycollections;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 public class UnsortedBag<E> extends AbstractArrayCollection<E> {
 	public static final int DEFAULT_CAPACITY = 100;
 	private E[] data;
+	private int size = 0;
 
 	public UnsortedBag() {
 		this(DEFAULT_CAPACITY);
@@ -15,72 +17,62 @@ public class UnsortedBag<E> extends AbstractArrayCollection<E> {
 		data = (E[])new Object[capacity];
 	}
 
-	@Override
-	public boolean add(E e) {
-
-		// Objects.requireNonNull(e)
-        // checkRemainingCapacity();
-        // addElemen(e)
-		// data[size++] = e;
-
-		int lastIndex = size()-1;
-
-		// e.equals(null): NPE wird geworfen wenn e null ist, aber im IF statement.
-		// 'null' cannot be added.
-		if(e == null) {
-			throw new NullPointerException("Adding null.");
+	private void checkRemainingCapacity() {
+		if (size == data.length) {
+			throw new IllegalStateException("Collection full");
 		}
-
-		if (lastIndex+1 == this.data.length) {
-			throw new IllegalStateException("Cannot add to full collection.");
-		} else {
-			this.data[lastIndex+1] = e;
-		}
-        return true;
 	}
 
 	@Override
+	public boolean add(E e) {
+		Objects.requireNonNull(e);
+		checkRemainingCapacity();
+		addElement(e);
+		return true;
+	}
+
+	private void addElement(E e) {
+	    data[size] = e;
+	    size++;
+	}
+
+
+	@Override
 	public boolean remove(Object o) {
-		int position = 0;
-		if (this.contains(o)) {
-			int numberOfElements = size();
-	        for(int i = 0; i < numberOfElements; i++) {
-	        	E tmp = this.data[i];
-	            if (tmp == o) {
-	            	position = i;
-		    	}
-		    }
-	        for(int i = position; i<numberOfElements; i++) {
-	        	// If the last element is removed, manually set the
-				// position that became available to 'null'.
-	        	if (i == numberOfElements-1) {
-	        		this.data[i] = null;
-				} else {
-					this.data[i] = this.data[i + 1];
-				}
-		    }
-	        return true;
+	    Objects.requireNonNull(o);
+	    int index = indexOf(o);
+	    if (index == -1) {
+			return false;
 		}
-		return false;
+	    // Unsorted bag: just move the element
+		// at the end to the place that gets emptied.
+	    data[index] = data[size-1];
+	    data[size-1] = null;
+	    size--;
+	    return true;
+	}
+
+	private int indexOf(Object o) {
+		// We know that no null elements are present from specification.
+		int i = 0;
+		while (i < size && !o.equals(data[i])) {
+			i++;
+		}
+		return i == size ? -1 : i;
 	}
 
 	// TODO:
 	// - Why must the comparison be done with 'equals'?
+	//   --> Because we care about if the elements have the same value
+	//       not if it is the same object.
 	@Override
 	public boolean contains(Object o) {
-	    int numberOfElements = this.size();
-	    for (int i = 0; i < numberOfElements; i++) {
-			if (this.data[i].getClass() != o.getClass()) {
-				return false;
-			}
-
-			// '==': Referenzvergleich, dh. sind es die gleichen Objekte?
-			// 'equals': Ist der Inhalt der Objekte gleich?
-			if (this.data[i].equals(o)) {
-				return true;
-			}
+		Objects.requireNonNull(o);
+	    int i = 0;
+	    while (i < size && !(o.equals(data[i]))) {
+	    	i++;
 		}
-		return false;
+	    return i == size ? false : true;
 	}
 
 	@Override
