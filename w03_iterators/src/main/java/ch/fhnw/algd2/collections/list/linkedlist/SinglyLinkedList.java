@@ -230,6 +230,11 @@ public class SinglyLinkedList<E> extends MyAbstractList<E> {
 				prevPrev = prev;
 			}
 			E e       = nextNode.elem;
+
+			//  To prevent that prevPrev is referencing the just removed node
+			if (mayRemove == true) {
+				prevPrev = prev;
+			}
 			prev      = nextNode;
 			nextNode = nextNode.next;
 			mayRemove = true;
@@ -245,16 +250,26 @@ public class SinglyLinkedList<E> extends MyAbstractList<E> {
 				throw new IllegalStateException("Cannot remove before nextNode() not called.");
 			}
 
-			// Case last.
-			if (nextNode == null) {
-			    prev.next = null;
-			    last = prev;
-			} else {
-			    // Not last.
-				prev.next = nextNode.next;
-				nextNode = nextNode.next;
+			// Case First && Only
+			if (prevPrev == null && prev == first && nextNode == null) {
+				prev = null;
+				first = null;
+				last = null;
 			}
-
+			// Case First && not only
+			else if (prevPrev == null && prev == first && nextNode != null) {
+				first = nextNode;
+				prev = null;
+			}
+			// Case last.
+			else if (prev == last) {
+				prevPrev.next = null;
+				last = prevPrev;
+			} else {
+				// Case innner
+				prevPrev.next = nextNode;
+			}
+			mayRemove = false;
 			size--;
 			modCount++;
 			myGeneration++;
@@ -276,3 +291,13 @@ public class SinglyLinkedList<E> extends MyAbstractList<E> {
 	- remove: wieso 'prev==null' erforderlich?
 	 */
 }
+// Case last.
+// if (nextNode == null) {
+//     prev.next = null;
+//     last = prev;
+// } else {
+//     // Not last.
+// 	prev.next = nextNode.next;
+// 	nextNode = nextNode.next;
+// }
+

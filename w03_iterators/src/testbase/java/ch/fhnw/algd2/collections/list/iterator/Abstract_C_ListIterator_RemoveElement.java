@@ -2,8 +2,10 @@ package ch.fhnw.algd2.collections.list.iterator;
 
 import static org.junit.Assert.*;
 
+import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
 import java.util.Iterator;
+// import java.util.List;
 
 import org.junit.Test;
 
@@ -196,6 +198,12 @@ public abstract class Abstract_C_ListIterator_RemoveElement extends
 		for (Integer i : allNumbers) {
 			assertTrue(list.add(i));
 		}
+	}
+
+	@Test
+	public void testAssertTrueAddToList() {
+		ArrayList<Integer> listToTest = new ArrayList<>();
+		assertTrue(listToTest.add(1));
 	}
 
 }

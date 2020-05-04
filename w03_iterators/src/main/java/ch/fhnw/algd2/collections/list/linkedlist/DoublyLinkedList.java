@@ -27,22 +27,120 @@ public class DoublyLinkedList<E> extends MyAbstractList<E> {
 
 	@Override
 	public void add(int index, E element) {
-		throw new UnsupportedOperationException();
+		Node<E> newNode = new Node(element);
+		if (index > size() || index < 0) {
+			throw new IndexOutOfBoundsException("Invalid index.");
+		}
+
+		// Case empty list.
+		if (size() == 0) {
+			first = newNode;
+			last  = newNode;
+			size++;
+			return;
+		}
+
+		// Case first && only.
+		if (size() == 1) {
+			if (index == 0) { // Insert as start.
+				first.prev = newNode;
+				newNode.next = first;
+				first = newNode;
+			}
+			if (index == 1) { // Insert as last.
+				first.next = newNode;
+				newNode.prev = first;
+				last = newNode;
+			}
+			size++;
+			return;
+		}
+
+		// Case inner && not last.
+		if (size() > 1 && (index <= size()-1)) {
+			Node<E> nodeBeforeInsertedNewNode = getNodeAt(index-1);
+			newNode.next                   = nodeBeforeInsertedNewNode.next;
+			nodeBeforeInsertedNewNode.next = newNode;
+			newNode.next.prev              = newNode;
+			newNode.prev                   = nodeBeforeInsertedNewNode;
+			size++;
+			return;
+		}
+
+		// Case after last.
+		if (index == size()) {
+			last.next = newNode;
+			newNode.prev = last;
+			last = newNode;
+			size++;
+			return;
+		}
+	}
+
+	private Node<E> getNodeAt(int index) {
+		if (index < 0 || index >= size()) {
+			throw new IndexOutOfBoundsException("Out of bounds: " + index);
+		}
+		Node<E> current = null;
+		int halfSize = size() / 2;
+		if (index < halfSize) {
+			// Start from beginning
+			current = first;
+			for (int i = 0; i < index; i++) {
+				current = current.next;
+			}
+		} else {
+			// Start from end
+			current = last;
+			for (int i = size() - 1; i > index; i--) {
+				current = current.prev;
+			}
+		}
+		return current;
 	}
 
 	@Override
 	public boolean remove(Object o) {
 		Node<E> currentNode = first;
-		int currentIndex = 0;
+
+		// Case: Empty list.
 		if (size() == 0) {
-			throw new NoSuchElementException("Empty list.");
+			return false;
 		}
+
+		// Case: One node.
+		if (size() == 1) {
+			first = null;
+			last = null;
+			size--;
+			return true;
+		}
+
+		// Case: First node.
+		if (currentNode.elem.equals(o) && currentNode == first) {
+		    first.next.prev = null;
+			first = first.next;
+			size--;
+			return true;
+		}
+
+		// Case: Inner nodes.
 		while (currentNode.next != null) {
 			if (currentNode.elem.equals(o)) {
-				remove(currentIndex);
+				currentNode.prev.next = currentNode.next;
+				currentNode.next.prev = currentNode.prev;
+				size--;
+				return true;
 			}
 			currentNode = currentNode.next;
-			currentIndex++;
+		}
+
+		// Case: Last node.
+		if (currentNode.elem.equals(o) && currentNode == last) {
+			last = currentNode.prev;
+			currentNode.prev.next = null;
+			size--;
+			return true;
 		}
 		return false;
 	}
@@ -54,8 +152,8 @@ public class DoublyLinkedList<E> extends MyAbstractList<E> {
 		// Node has 'prev'  and 'next' references.
 		Node<E> currentNode = first;
 		int currentIndex = 0;
-		if (size() == 0) {
-			throw new NoSuchElementException("Empty list.");
+		if (size() == 0 || index >= size()) {
+			throw new IndexOutOfBoundsException("Empty list.");
 		}
 
 		// Remove first and not empty list.
@@ -83,17 +181,7 @@ public class DoublyLinkedList<E> extends MyAbstractList<E> {
 			currentNode = currentNode.next;
 			currentIndex++;
 		}
-
-		// Remove last.
-		if ((index == size()-1) && currentNode != null) {
-			E e = currentNode.elem;
-			last.prev.next = null;
-			last = last.prev;
-			size--;
-			return e;
-		}
-
-		throw new NoSuchElementException("Node for index not found.");
+		throw new IndexOutOfBoundsException("Invalid index.");
 	}
 
 	@Override
@@ -113,6 +201,9 @@ public class DoublyLinkedList<E> extends MyAbstractList<E> {
 	@Override
 	public E get(int index) {
 		Node<E> currentNode = first;
+		if (index > (size()-1) || index < 0 || size() == 0) {
+			throw new IndexOutOfBoundsException("Invalid index.");
+		}
 		int cnt = 0;
 		while (currentNode != null) {
 			if (cnt == index) {
@@ -136,7 +227,8 @@ public class DoublyLinkedList<E> extends MyAbstractList<E> {
 
 	@Override
 	public ListIterator<E> listIterator() {
-		throw new UnsupportedOperationException("Implement later");
+		// throw new UnsupportedOperationException("Implement later");
+		return new MyListIterator();
 	}
 
 	private static class Node<E> {
@@ -154,12 +246,20 @@ public class DoublyLinkedList<E> extends MyAbstractList<E> {
 		}
 	}
 
-	private class MyListIterator implements Iterator<E> {
+	private class MyListIterator implements ListIterator<E> {
 
 		private Node<E> next = first;
 		private Node<E> prev = null;
 		private boolean mayRemove = false;
 		private int generation = modCount;
+		private DoublyLinkedList thisList;
+
+		public MyListIterator() {
+		}
+
+		public MyListIterator(DoublyLinkedList l) {
+			thisList = l;
+		}
 
 		@Override
 		public boolean hasNext() {
@@ -178,22 +278,56 @@ public class DoublyLinkedList<E> extends MyAbstractList<E> {
 		}
 
 		@Override
+		public boolean hasPrevious() {
+			return prev != null;
+		}
+
+		@Override
+		public E previous() {
+			if (!hasPrevious()) { throw new NoSuchElementException("At start."); }
+			E elem = prev.elem;
+
+			next = prev;
+			prev = prev.prev;
+
+			return elem;
+		}
+
+		@Override
+		public int nextIndex() {
+			return 0;
+		}
+
+		@Override
+		public int previousIndex() {
+			return 0;
+		}
+
+		@Override
 		public void remove() {
-			if (!mayRemove) { throw new IllegalStateException("Must call next() before remove."); }
+			if (!mayRemove)             { throw new IllegalStateException("Must call next() before remove."); }
 			if (modCount != generation) { throw new ConcurrentModificationException("Changed."); }
 
-			Node<E> currentNode = first;
+			System.out.println("This element: " + next.elem);
 
-			// Remove first.
-
-
-			// Remove inner.
 			next.prev.next = next.next;
 			next.next.prev = next.prev;
-			mayRemove = false;
+
+			System.out.println(this.thisList);
+
 			generation++;
 			modCount++;
 			size--;
+		}
+
+		@Override
+		public void set(E e) {
+
+		}
+
+		@Override
+		public void add(E e) {
+
 		}
 	}
 

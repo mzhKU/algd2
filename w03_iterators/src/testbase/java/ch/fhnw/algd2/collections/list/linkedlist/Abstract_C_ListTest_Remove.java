@@ -54,6 +54,7 @@ public abstract class Abstract_C_ListTest_Remove extends AbstractMyLinkedListTes
 		addNumbersFromOneToFiveToList();
 		Integer number = Integer.valueOf(3);
 		assertTrue(list.remove(number));
+		System.out.println(list);
 		assertFalse(list.contains(number));
 		assertEquals(4, list.size());
 		checkOrderIndependentOccurrence(new Integer[] { 1, 2, 4, 5 });

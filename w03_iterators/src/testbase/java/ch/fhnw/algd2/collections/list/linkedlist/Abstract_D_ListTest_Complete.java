@@ -5,6 +5,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -88,10 +89,24 @@ public abstract class Abstract_D_ListTest_Complete extends AbstractMyLinkedListT
 	}
 
 	@Test
+	public void testAddBeforeOrAfterFirstElement() {
+		ArrayList<Integer> li1 = new ArrayList();
+		li1.add(0);
+		li1.add(0, 2);
+		System.out.println(li1);
+
+		ArrayList<Integer> li2 = new ArrayList<>();
+		li2.add(0);
+		li2.add(1, 3);
+		System.out.println(li2);
+	}
+
+	@Test
 	public void add_Numbers1To5AtLastIndexInSequenceFollowedByAdd_NumbersInAscendingOrder() {
 		Integer[] numbers = getArrayWithNumbersOneToFive();
 		for (int i = 0; i < numbers.length - 1; i++) {
 			list.add(list.size(), numbers[i]);
+			System.out.println(list);
 			assertEquals(i + 1, list.size());
 		}
 		assertTrue(list.add(numbers[numbers.length - 1]));
